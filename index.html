@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INBA Chile 2025</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .butacas {
+            text-align: center;
+        }
+        .grilla {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 5px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .asiento {
+            padding: 10px;
+            background-color: green;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .asiento.vip {
+            font-weight: bold;
+        }
+        .asiento.ocupado {
+            background-color: red;
+            cursor: not-allowed;
+        }
+        #seleccionados {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        button.enviar {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>INBA Chile 2025 - Natural House Championships</h1>
+        <p>24 de agosto de 2025 - 10:00 AM<br>Teatro de San Javier, Arturo Prat 2480, San Javier de Loncomilla, Región del Maule</p>
+    </header>
+
+    <section class="afiche">
+        <img src="img/afiche.jpg" alt="Afiche del evento">
+    </section>
+
+    <section class="butacas">
+        <h2>Distribución de Butacas</h2>
+        <p>Verde = Disponible, Rojo = Ocupado, VIP = Filas 1 a 3</p>
+        <div class="grilla" id="grilla"></div>
+        <div id="seleccionados">Asientos seleccionados: ninguno</div>
+        <button class="enviar" onclick="enviarReserva()">Enviar reserva por WhatsApp</button>
+    </section>
+
+    <footer>
+        <p>Contacto: <a href="mailto:chileinba@gmail.com">chileinba@gmail.com</a> | WhatsApp: <a href="https://wa.me/56961451122">+56 9 6145 1122</a></p>
+    </footer>
+
+    <script>
+        const columnas = 'ABCDEFGHIJK'.split('');
+        const filas = 21;
+        const ocupados = []; // Asientos ocupados, e.g., ["A1", "B2"]
+
+        const grilla = document.getElementById("grilla");
+        const seleccionadosDiv = document.getElementById("seleccionados");
+        const seleccionados = new Set();
+
+        for (let f = 1; f <= filas; f++) {
+            columnas.forEach(col => {
+                const id = col + f;
+                const div = document.createElement("div");
+                div.textContent = id;
+                div.className = "asiento";
+                if (f <= 3) div.classList.add("vip");
+                if (ocupados.includes(id)) {
+                    div.classList.add("ocupado");
+                } else {
+                    div.onclick = () => {
+                        if (div.classList.contains("ocupado")) return;
+                        if (seleccionados.has(id)) {
+                            seleccionados.delete(id);
+                            div.style.backgroundColor = "green";
+                        } else {
+                            seleccionados.add(id);
+                            div.style.backgroundColor = "orange";
+                        }
+                        actualizarSeleccionados();
+                    };
+                }
+                grilla.appendChild(div);
+            });
+        }
+
+        function actualizarSeleccionados() {
+            const sel = Array.from(seleccionados).sort().join(", ");
+            seleccionadosDiv.textContent = sel
+                ? "Asientos seleccionados: " + sel
+                : "Asientos seleccionados: ninguno";
+        }
+
+        function enviarReserva() {
+            if (seleccionados.size === 0) {
+                alert("Debes seleccionar al menos un asiento.");
+                return;
+            }
+            const lista = Array.from(seleccionados).sort().join(", ");
+            const mensaje = `Hola, quiero reservar los siguientes asientos para el evento INBA Chile 2025: ${lista}. Por favor confirmar.`;
+            const url = "https://wa.me/56961451122?text=" + encodeURIComponent(mensaje);
+            window.open(url, "_blank");
+        }
+    </script>
+</body>
+</html>
